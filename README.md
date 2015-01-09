@@ -10,4 +10,10 @@ quick interfaces by defining simple commands.
 
 But right now, it's just a simple shell to demonstrate that I know how a shell
 works.  That is, read, parse, fork, exec, and wait.  So I think it's pretty
-cool.
+cool.  Here are the limitations:
+
+* One line commands.
+* Only whitespace-delimited, no quoting of arguments.
+* No PATH support yet (executables must be called by their full path).
+* No built-ins (e.g. cd, pwd, etc.).
+
