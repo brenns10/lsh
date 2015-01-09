@@ -31,7 +31,7 @@ int lsh_launch(char **args)
   pid = fork();
   if (pid == 0) {
     // Child process
-    if (execv(args[0], args) == -1) {
+    if (execvp(args[0], args) == -1) {
       perror("lsh");
     }
     exit(EXIT_FAILURE);
