@@ -146,16 +146,16 @@ void lsh_loop(void)
 {
   char *line;
   char **args;
-  int status = 1;
 
-  do {
+  while (1) {
     printf("> ");
-    char *line = lsh_read_line();
-    char **args = lsh_split_line(line);
-    free(line);
+    line = lsh_read_line();
+    args = lsh_split_line(line);
     lsh_launch(args);
+
+    free(line);
     lsh_free_args(args);
-  } while (status);
+  }
 }
 
 /**
