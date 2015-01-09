@@ -14,6 +14,5 @@ cool.  Here are the limitations:
 
 * One line commands.
 * Only whitespace-delimited, no quoting of arguments.
-* No PATH support yet (executables must be called by their full path).
 * No built-ins (e.g. cd, pwd, etc.).
 
