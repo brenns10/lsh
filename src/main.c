@@ -13,7 +13,6 @@
 #include <sys/wait.h>
 #include <unistd.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -133,6 +132,11 @@ int lsh_execute(char **args)
 {
   int i;
 
+  if (args[0] == NULL) {
+    // An empty command was entered.
+    return 1;
+  }
+
   for (i = 0; i < lsh_num_builtins(); i++) {
     if (strcmp(args[0], builtin_str[i]) == 0) {
       return (*builtin_func[i])(args);
@@ -188,12 +192,9 @@ char *lsh_read_line(void)
  */
 char **lsh_split_line(char *line)
 {
-  int bufsize = LSH_TOK_BUFSIZE;
+  int bufsize = LSH_TOK_BUFSIZE, position = 0, toklen;
   char **tokens = malloc(bufsize * sizeof(char));
-  int position = 0;
-  char *token;
-  int toklen;
-  char *token_copy;
+  char *token, *token_copy;
 
   token = strtok(line, LSH_TOK_DELIM);
   while (token != NULL) {
