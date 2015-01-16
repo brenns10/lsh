@@ -173,6 +173,6 @@ int main(int argc, char **argv)
 
   // Perform any shutdown/cleanup.
 
-  return 0;
+  return EXIT_SUCCESS;
 }
 
