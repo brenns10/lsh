@@ -1,18 +1,12 @@
 LSH
 ===
 
-LSH is my little attempt at a *real* shell in C.  It's called LSH because it's
-supposed to be the Libstephen SHell.  That's because I hope that if this shell
-becomes anything, it could become a part of Libstephen as a shell library.  It
-would have a simple shell syntax, maybe optional globbing, and it would be
-simple to plug any set of commands into it.  That way, it could be used for
-quick interfaces by defining simple commands.
+LSH is a simple implementation of a shell in C.  It demonstrates the basics of
+how a shell works.  That is: read, parse, fork, exec, and wait.  So I think it's
+pretty cool.  Since it's a simple implementation, it has some limitations.
 
-But right now, it's just a simple shell to demonstrate that I know how a shell
-works.  That is, read, parse, fork, exec, and wait.  So I think it's pretty
-cool.  Here are the limitations:
-
-* One line commands.
-* Only whitespace-delimited, no quoting of arguments.
-* No built-ins (e.g. cd, pwd, etc.).
-
+* Commands must be on a single line.
+* Arguments must be separated by whitespace.
+* No quoting arguments or escaping whitespace.
+* No piping or redirection.
+* Only builtins are: `cd`, `help`, `exit`.
