@@ -201,6 +201,11 @@ char **lsh_split_line(char *line)
   char **tokens = malloc(bufsize * sizeof(char*));
   char *token;
 
+  if (!tokens) {
+    fprintf(stderr, "lsh: allocation error\n");
+    exit(EXIT_FAILURE);
+  }
+
   token = strtok(line, LSH_TOK_DELIM);
   while (token != NULL) {
     tokens[position] = token;
