@@ -192,22 +192,18 @@ char *lsh_read_line(void)
  */
 char **lsh_split_line(char *line)
 {
-  int bufsize = LSH_TOK_BUFSIZE, position = 0, toklen;
-  char **tokens = malloc(bufsize * sizeof(char));
-  char *token, *token_copy;
+  int bufsize = LSH_TOK_BUFSIZE, position = 0;
+  char **tokens = malloc(bufsize * sizeof(char*));
+  char *token;
 
   token = strtok(line, LSH_TOK_DELIM);
   while (token != NULL) {
-    toklen = strlen(token);
-    token_copy = malloc((toklen + 1) * sizeof(char));
-    strcpy(token_copy, token);
-
-    tokens[position] = token_copy;
+    tokens[position] = token;
     position++;
 
-    if (position <= bufsize) {
+    if (position >= bufsize) {
       bufsize += LSH_TOK_BUFSIZE;
-      tokens = realloc(tokens, bufsize);
+      tokens = realloc(tokens, bufsize * sizeof(char*));
       if (!tokens) {
         fprintf(stderr, "lsh: allocation error\n");
         exit(EXIT_FAILURE);
@@ -218,20 +214,6 @@ char **lsh_split_line(char *line)
   }
   tokens[position] = NULL;
   return tokens;
-}
-
-/**
-   @brief Free null-terminated array of strings.
-   @param args List to free.
- */
-void lsh_free_args(char **args)
-{
-  char **iter = args;
-  while (*iter != NULL) {
-    free(*iter);
-    iter++;
-  }
-  free(args);
 }
 
 /**
@@ -250,7 +232,7 @@ void lsh_loop(void)
     status = lsh_execute(args);
 
     free(line);
-    lsh_free_args(args);
+    free(args);
   } while (status);
 }
 
