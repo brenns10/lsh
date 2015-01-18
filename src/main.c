@@ -158,6 +158,11 @@ char *lsh_read_line(void)
   char *buffer = malloc(sizeof(char) * bufsize);
   int c;
 
+  if (!buffer) {
+    fprintf(stderr, "lsh: allocation error\n");
+    exit(EXIT_FAILURE);
+  }
+
   while (1) {
     // Read a character
     c = getchar();
