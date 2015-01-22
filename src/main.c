@@ -108,11 +108,13 @@ int lsh_launch(char **args)
     // Child process
     if (execvp(args[0], args) == -1) {
       perror("lsh");
+      exit(EXIT_FAILURE);
     }
-    exit(EXIT_FAILURE);
+    exit(EXIT_SUCCESS);
   } else if (pid < 0) {
     // Error forking
     perror("lsh");
+    exit(EXIT_FAILURE);
   } else {
     // Parent process
     do {
