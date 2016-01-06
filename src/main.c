@@ -32,6 +32,11 @@ char *builtin_str[] = {
   "exit"
 };
 
+/*
+Current working directory
+*/
+char cwd[1024];
+
 int (*builtin_func[]) (char **) = {
   &lsh_cd,
   &lsh_help,
@@ -59,6 +64,8 @@ int lsh_cd(char **args)
     if (chdir(args[1]) != 0) {
       perror("lsh");
     }
+    /* Update the cwd */
+    getcwd(cwd, sizeof(cwd));
   }
   return 1;
 }
@@ -237,8 +244,11 @@ void lsh_loop(void)
   char **args;
   int status;
 
+  if (getcwd(cwd, sizeof(cwd)) != NULL)
+       printf("lsh-0.1.16\n");
+
   do {
-    printf("> ");
+    printf("[%s]$ ",cwd);
     line = lsh_read_line();
     args = lsh_split_line(line);
     status = lsh_execute(args);
@@ -265,4 +275,3 @@ int main(int argc, char **argv)
 
   return EXIT_SUCCESS;
 }
-
