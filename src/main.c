@@ -167,8 +167,9 @@ char *lsh_read_line(void)
     // Read a character
     c = getchar();
 
-    // If we hit EOF, replace it with a null character and return.
-    if (c == EOF || c == '\n') {
+    if (c == EOF) {
+      exit(EXIT_SUCCESS);
+    } else if (c == '\n') {
       buffer[position] = '\0';
       return buffer;
     } else {
