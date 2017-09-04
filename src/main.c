@@ -24,22 +24,21 @@ int lsh_help(char **args);
 int lsh_exit(char **args);
 
 /*
-  List of builtin commands, followed by their corresponding functions.
+  List of builtin commands.
  */
-char *builtin_str[] = {
-  "cd",
-  "help",
-  "exit"
+struct Builtin {
+  char *name;
+  int (*func) (char**);
 };
 
-int (*builtin_func[]) (char **) = {
-  &lsh_cd,
-  &lsh_help,
-  &lsh_exit
+struct Builtin builtins[] = {
+  { "cd", &lsh_cd },
+  { "help", &lsh_help },
+  { "exit", &lsh_exit }
 };
 
 int lsh_num_builtins() {
-  return sizeof(builtin_str) / sizeof(char *);
+  return sizeof(builtins) / sizeof(struct Builtin);
 }
 
 /*
@@ -76,7 +75,7 @@ int lsh_help(char **args)
   printf("The following are built in:\n");
 
   for (i = 0; i < lsh_num_builtins(); i++) {
-    printf("  %s\n", builtin_str[i]);
+    printf("  %s\n", builtins[i].name);
   }
 
   printf("Use the man command for information on other programs.\n");
@@ -138,8 +137,8 @@ int lsh_execute(char **args)
   }
 
   for (i = 0; i < lsh_num_builtins(); i++) {
-    if (strcmp(args[0], builtin_str[i]) == 0) {
-      return (*builtin_func[i])(args);
+    if (strcmp(args[0], builtins[i].name) == 0) {
+      return (*builtins[i].func)(args);
     }
   }
 
