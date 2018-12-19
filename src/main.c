@@ -180,12 +180,13 @@ char *lsh_read_line(void)
 
     // If we have exceeded the buffer, reallocate.
     if (position >= bufsize) {
-      bufsize += LSH_RL_BUFSIZE;
-      buffer = realloc(buffer, bufsize);
-      if (!buffer) {
+      char *temp = realloc(buffer, bufsize + LSH_RL_BUFSIZE);
+      if (!temp) {
         fprintf(stderr, "lsh: allocation error\n");
         exit(EXIT_FAILURE);
       }
+      buffer = temp;
+      bufsize = bufsize + LSH_RL_BUFSIZE;
     }
   }
 }
