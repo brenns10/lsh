@@ -251,6 +251,18 @@ void lsh_loop(void)
 }
 
 /**
+   @brief print the program usage
+   @param prog_name Program name
+ */
+void show_usage(char *prog_name)
+{
+  printf("Usage: %s [OPTION]\n\n", prog_name);
+  printf("Available options:\n");
+  printf("-c ip port\t\tConnects to an ipv4 server\n");
+  printf("\n");
+}
+
+/**
    @brief Main entry point.
    @param argc Argument count.
    @param argv Argument vector.
@@ -258,6 +270,22 @@ void lsh_loop(void)
  */
 int main(int argc, char **argv)
 {
+  int currunt_arg = 1;
+
+  // Parsre the arguments
+  if (argc > 1) {
+    if (strcmp(argv[currunt_arg], "-h") == 0 || strcmp(argv[currunt_arg], "--help") == 0) {
+      show_usage(argv[0]);
+      return EXIT_FAILURE;
+    }
+    else {
+      printf("Invalid arg: %s\n\n", argv[currunt_arg]);
+      show_usage(argv[0]);
+      return EXIT_FAILURE;
+    }
+
+    currunt_arg++;
+  }
   // Load config files, if any.
 
   // Run command loop.
