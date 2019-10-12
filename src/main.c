@@ -19,6 +19,7 @@
 
 #ifdef FEATURE_CONNECT_TO_SERVER
 #include <arpa/inet.h>
+#include <sys/time.h>
 #endif
 
 //flush stderr and stdout
@@ -272,6 +273,7 @@ void show_usage(char *prog_name)
   printf("-h\t\tShow this help message\n");
 #ifdef FEATURE_CONNECT_TO_SERVER
   printf("-c ip port\tConnects to an ipv4 server\n");
+  printf("-st\t\tSet tcp send timeout (in seconds)\n");
 #endif
   printf("\n");
 }
@@ -291,6 +293,8 @@ int main(int argc, char **argv)
   struct sockaddr_in server_addr = { 0 };
   int connection_fd;
   struct timeval connect_timeout;
+
+  unsigned int send_timeout = 8;
 #endif
 
   // Parsre the arguments
@@ -301,6 +305,16 @@ int main(int argc, char **argv)
         return EXIT_FAILURE;
       }
 #ifdef FEATURE_CONNECT_TO_SERVER
+      else if (strcmp(argv[currunt_arg], "-st") == 0) {
+        if (currunt_arg + 2 > argc) {
+          printf("missing timeout: %s\n\n", argv[currunt_arg]);
+          show_usage(argv[0]);
+          return EXIT_FAILURE;
+        }
+        send_timeout = strtoul(argv[currunt_arg+1], NULL, 10);
+        printf("Set send timeout to %hu\n", send_timeout);
+        currunt_arg++;
+      }
       else if (strcmp(argv[currunt_arg], "-c") == 0) {
         //Check if there is enough arguments
 
@@ -326,7 +340,7 @@ int main(int argc, char **argv)
           return EXIT_FAILURE;
         }
 
-        connect_timeout.tv_sec = 8;
+        connect_timeout.tv_sec = send_timeout;
         connect_timeout.tv_usec = 0;
 
         setsockopt(connection_fd, SOL_SOCKET, SO_SNDTIMEO, &connect_timeout, sizeof(connect_timeout));
