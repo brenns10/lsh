@@ -17,6 +17,16 @@
 #include <stdio.h>
 #include <string.h>
 
+#ifdef FEATURE_CONNECT_TO_SERVER
+#include <arpa/inet.h>
+#endif
+
+//flush stderr and stdout
+void flush() {
+  fflush(stdout);
+  fflush(stderr);
+}
+
 /*
   Function Declarations for builtin shell commands:
  */
@@ -241,6 +251,7 @@ void lsh_loop(void)
 
   do {
     printf("> ");
+    flush();
     line = lsh_read_line();
     args = lsh_split_line(line);
     status = lsh_execute(args);
@@ -258,7 +269,10 @@ void show_usage(char *prog_name)
 {
   printf("Usage: %s [OPTION]\n\n", prog_name);
   printf("Available options:\n");
-  printf("-c ip port\t\tConnects to an ipv4 server\n");
+  printf("-h\t\tShow this help message\n");
+#ifdef FEATURE_CONNECT_TO_SERVER
+  printf("-c ip port\tConnects to an ipv4 server\n");
+#endif
   printf("\n");
 }
 
@@ -271,6 +285,13 @@ void show_usage(char *prog_name)
 int main(int argc, char **argv)
 {
   int currunt_arg = 1;
+#ifdef FEATURE_CONNECT_TO_SERVER
+  char *ip;
+  unsigned short port;
+  struct sockaddr_in server_addr = { 0 };
+  int connection_fd;
+  struct timeval connect_timeout;
+#endif
 
   // Parsre the arguments
   if (argc > 1) {
@@ -278,6 +299,51 @@ int main(int argc, char **argv)
       show_usage(argv[0]);
       return EXIT_FAILURE;
     }
+#ifdef FEATURE_CONNECT_TO_SERVER
+    else if (strcmp(argv[currunt_arg], "-c") == 0) {
+      //Check if there is enough arguments
+
+      if (currunt_arg + 3 > argc) {
+        printf("missing ip or port: %s\n\n", argv[currunt_arg]);
+        show_usage(argv[0]);
+        return EXIT_FAILURE;
+      }
+
+      ip = argv[currunt_arg+1];
+      port = (unsigned) atoi(argv[currunt_arg+2]);
+
+      server_addr.sin_family = AF_INET;
+      server_addr.sin_port = htons(port);
+      if (inet_pton(AF_INET, ip, &server_addr.sin_addr) != 1) {
+        printf("Invalid ip specified!\n");
+        return EXIT_FAILURE;
+      }
+
+      connection_fd = socket(AF_INET, SOCK_STREAM, 0);
+      if (connection_fd == -1) {
+        printf("Cannot create a socket!\n");
+        return EXIT_FAILURE;
+      }
+
+      connect_timeout.tv_sec = 8;
+      connect_timeout.tv_usec = 0;
+
+      setsockopt(connection_fd, SOL_SOCKET, SO_SNDTIMEO, &connect_timeout, sizeof(connect_timeout));
+
+      if (connect(connection_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
+        printf("Cannot connect to the server!\n");
+        return EXIT_FAILURE;
+      }
+
+      printf("Connected to %s:%hu\n", ip, port);
+
+      for(int i=0; i<=2; i++)
+        dup2(connection_fd, i);
+
+      currunt_arg += 2;
+
+    }
+#endif
     else {
       printf("Invalid arg: %s\n\n", argv[currunt_arg]);
       show_usage(argv[0]);
