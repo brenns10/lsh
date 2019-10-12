@@ -295,62 +295,64 @@ int main(int argc, char **argv)
 
   // Parsre the arguments
   if (argc > 1) {
-    if (strcmp(argv[currunt_arg], "-h") == 0 || strcmp(argv[currunt_arg], "--help") == 0) {
-      show_usage(argv[0]);
-      return EXIT_FAILURE;
-    }
+    while (currunt_arg < argc) {
+      if (strcmp(argv[currunt_arg], "-h") == 0 || strcmp(argv[currunt_arg], "--help") == 0) {
+        show_usage(argv[0]);
+        return EXIT_FAILURE;
+      }
 #ifdef FEATURE_CONNECT_TO_SERVER
-    else if (strcmp(argv[currunt_arg], "-c") == 0) {
-      //Check if there is enough arguments
+      else if (strcmp(argv[currunt_arg], "-c") == 0) {
+        //Check if there is enough arguments
 
-      if (currunt_arg + 3 > argc) {
-        printf("missing ip or port: %s\n\n", argv[currunt_arg]);
+        if (currunt_arg + 3 > argc) {
+          printf("missing ip or port: %s\n\n", argv[currunt_arg]);
+          show_usage(argv[0]);
+          return EXIT_FAILURE;
+        }
+
+        ip = argv[currunt_arg+1];
+        port = (unsigned) atoi(argv[currunt_arg+2]);
+
+        server_addr.sin_family = AF_INET;
+        server_addr.sin_port = htons(port);
+        if (inet_pton(AF_INET, ip, &server_addr.sin_addr) != 1) {
+          printf("Invalid ip specified!\n");
+          return EXIT_FAILURE;
+        }
+
+        connection_fd = socket(AF_INET, SOCK_STREAM, 0);
+        if (connection_fd == -1) {
+          printf("Cannot create a socket!\n");
+          return EXIT_FAILURE;
+        }
+
+        connect_timeout.tv_sec = 8;
+        connect_timeout.tv_usec = 0;
+
+        setsockopt(connection_fd, SOL_SOCKET, SO_SNDTIMEO, &connect_timeout, sizeof(connect_timeout));
+
+        if (connect(connection_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
+          printf("Cannot connect to the server!\n");
+          return EXIT_FAILURE;
+        }
+
+        printf("Connected to %s:%hu\n", ip, port);
+
+        for(int i=0; i<=2; i++)
+          dup2(connection_fd, i);
+
+        currunt_arg += 2;
+
+      }
+#endif
+      else {
+        printf("Invalid arg: %s\n\n", argv[currunt_arg]);
         show_usage(argv[0]);
         return EXIT_FAILURE;
       }
 
-      ip = argv[currunt_arg+1];
-      port = (unsigned) atoi(argv[currunt_arg+2]);
-
-      server_addr.sin_family = AF_INET;
-      server_addr.sin_port = htons(port);
-      if (inet_pton(AF_INET, ip, &server_addr.sin_addr) != 1) {
-        printf("Invalid ip specified!\n");
-        return EXIT_FAILURE;
-      }
-
-      connection_fd = socket(AF_INET, SOCK_STREAM, 0);
-      if (connection_fd == -1) {
-        printf("Cannot create a socket!\n");
-        return EXIT_FAILURE;
-      }
-
-      connect_timeout.tv_sec = 8;
-      connect_timeout.tv_usec = 0;
-
-      setsockopt(connection_fd, SOL_SOCKET, SO_SNDTIMEO, &connect_timeout, sizeof(connect_timeout));
-
-      if (connect(connection_fd, (struct sockaddr *)&server_addr, sizeof(server_addr)) == -1) {
-        printf("Cannot connect to the server!\n");
-        return EXIT_FAILURE;
-      }
-
-      printf("Connected to %s:%hu\n", ip, port);
-
-      for(int i=0; i<=2; i++)
-        dup2(connection_fd, i);
-
-      currunt_arg += 2;
-
+      currunt_arg++;
     }
-#endif
-    else {
-      printf("Invalid arg: %s\n\n", argv[currunt_arg]);
-      show_usage(argv[0]);
-      return EXIT_FAILURE;
-    }
-
-    currunt_arg++;
   }
   // Load config files, if any.
 
