@@ -147,13 +147,19 @@ int lsh_execute(char **args)
   return lsh_launch(args);
 }
 
-#define LSH_RL_BUFSIZE 1024
 /**
    @brief Read a line of input from stdin.
    @return The line from stdin.
  */
 char *lsh_read_line(void)
 {
+#ifdef LSH_USE_STD_GETLINE
+  char *line = NULL;
+  ssize_t bufsize = 0; // have getline allocate a buffer for us
+  getline(&line, &bufsize, stdin);
+  return line;
+#else
+#define LSH_RL_BUFSIZE 1024
   int bufsize = LSH_RL_BUFSIZE;
   int position = 0;
   char *buffer = malloc(sizeof(char) * bufsize);
@@ -188,6 +194,7 @@ char *lsh_read_line(void)
       }
     }
   }
+#endif
 }
 
 #define LSH_TOK_BUFSIZE 64
