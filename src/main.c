@@ -156,7 +156,14 @@ char *lsh_read_line(void)
 #ifdef LSH_USE_STD_GETLINE
   char *line = NULL;
   ssize_t bufsize = 0; // have getline allocate a buffer for us
-  getline(&line, &bufsize, stdin);
+  if (getline(&line, &bufsize, stdin) == -1) {
+    if (feof(stdin)) {
+      exit(EXIT_SUCCESS);  // We recieved an EOF
+    } else  {
+      perror("lsh: getline\n");
+      exit(EXIT_FAILURE);
+    }
+  }
   return line;
 #else
 #define LSH_RL_BUFSIZE 1024
