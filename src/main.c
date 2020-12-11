@@ -158,7 +158,7 @@ char *lsh_read_line(void)
   ssize_t bufsize = 0; // have getline allocate a buffer for us
   if (getline(&line, &bufsize, stdin) == -1) {
     if (feof(stdin)) {
-      exit(EXIT_SUCCESS);  // We recieved an EOF
+      exit(EXIT_SUCCESS);  // We received an EOF
     } else  {
       perror("lsh: getline\n");
       exit(EXIT_FAILURE);
