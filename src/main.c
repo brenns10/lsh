@@ -169,7 +169,7 @@ char *lsh_read_line(void)
 #define LSH_RL_BUFSIZE 1024
   int bufsize = LSH_RL_BUFSIZE;
   int position = 0;
-  char *buffer = malloc(sizeof(char) * bufsize);
+  char *buffer = malloc(sizeof(char) * bufsize), * buffer_backup;
   int c;
 
   if (!buffer) {
@@ -194,11 +194,13 @@ char *lsh_read_line(void)
     // If we have exceeded the buffer, reallocate.
     if (position >= bufsize) {
       bufsize += LSH_RL_BUFSIZE;
-      buffer = realloc(buffer, bufsize);
-      if (!buffer) {
+      buffer_backup = realloc(buffer, bufsize);
+      if (!buffer_backup) {
+        free(buffer);
         fprintf(stderr, "lsh: allocation error\n");
         exit(EXIT_FAILURE);
       }
+      buffer = buffer_backup;
     }
   }
 #endif
